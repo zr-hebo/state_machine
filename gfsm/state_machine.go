@@ -30,12 +30,6 @@ func (sm *StateMachine) Walk(input interface{}) (err error) {
 		return
 	}
 
-	if sm.IsFinished() {
-		err = errors.New(
-			"state machine was already in finish state, cannot walk")
-		return
-	}
-
 	nextState, err := sm.currentState.Walk(input)
 	if err != nil {
 		return
@@ -43,6 +37,11 @@ func (sm *StateMachine) Walk(input interface{}) (err error) {
 
 	sm.currentState = nextState
 	return
+}
+
+// SetState SetState
+func (sm *StateMachine) SetState(state Stater) {
+	sm.currentState = state
 }
 
 func (sm *StateMachine) String() (str string) {
