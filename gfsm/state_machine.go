@@ -5,27 +5,20 @@ import (
 	"fmt"
 )
 
-// Stater Stater
-type Stater interface {
-	Walk(input interface{}) (Stater, error)
-	GetState() interface{}
-	String() string
-}
-
 // StateMachine StateMachine
 type StateMachine struct {
 	currentState Stater
-	startState   Stater
-	endState     Stater
-	allStates    []Stater
+	// startState   Stater
+	// endState     Stater
+	allStates []Stater
 }
 
 // NewStateMachine NewStateMachine
-func NewStateMachine(ss, es Stater, allStates []Stater) (sm *StateMachine) {
+func NewStateMachine(ss Stater, allStates []Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
 	sm.currentState = ss
-	sm.startState = ss
-	sm.endState = es
+	// sm.startState = ss
+	// sm.endState = es
 	sm.allStates = allStates
 	return
 }
@@ -59,20 +52,9 @@ func (sm *StateMachine) String() (str string) {
 
 // IsFinished IsFinished
 func (sm *StateMachine) IsFinished() bool {
-	return sm.currentState == sm.endState
-}
+	if sm.currentState == nil {
+		return true
+	}
 
-// SimpleState State
-type SimpleState struct {
-	name string
-}
-
-// Walk Walk
-func (s *SimpleState) Walk(val interface{}) (nextStat *SimpleState, err error) {
-	return
-}
-
-func (s *SimpleState) String() (str string) {
-	str = s.name
-	return
+	return sm.currentState.IsEnd()
 }
