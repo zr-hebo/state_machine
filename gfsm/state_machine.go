@@ -14,7 +14,7 @@ type StateMachine struct {
 // NewStateMachine NewStateMachine
 func NewStateMachine(startState Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
-
+	startState.SetMachine(sm)
 	sm.currentState = startState
 	return
 }
