@@ -42,6 +42,11 @@ func (sm *StateMachine) Walk(input interface{}) (err error) {
 	return
 }
 
+// GetState GetState
+func (sm *StateMachine) GetState() Stater {
+	return sm.currentState
+}
+
 // SetState SetState
 func (sm *StateMachine) SetState(state Stater) {
 	sm.currentState = state

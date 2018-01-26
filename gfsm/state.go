@@ -5,6 +5,7 @@ type Stater interface {
 	Walk(input interface{}) (Stater, error)
 	String() string
 	IsEnd() bool
+	GetVal() interface{}
 	SetMachine(*StateMachine)
 }
 
@@ -24,10 +25,9 @@ func (s *SimpleState) String() (str string) {
 	return
 }
 
-// GetState GetState
-func (s *SimpleState) GetState() (str string) {
-	str = s.name
-	return
+// GetVal GetVal
+func (s *SimpleState) GetVal() interface{} {
+	return s.name
 }
 
 // SetMachine SetMachine
