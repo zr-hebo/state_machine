@@ -5,11 +5,13 @@ type Stater interface {
 	Walk(input interface{}) (Stater, error)
 	String() string
 	IsEnd() bool
+	SetOwnMachine(*StateMachine)
 }
 
 // SimpleState State
 type SimpleState struct {
 	name string
+	sm   *StateMachine
 }
 
 // Walk Walk
@@ -26,4 +28,9 @@ func (s *SimpleState) String() (str string) {
 func (s *SimpleState) GetState() (str string) {
 	str = s.name
 	return
+}
+
+// SetOwnMachine SetOwnMachine
+func (s *SimpleState) SetOwnMachine(sm *StateMachine) {
+	s.sm = sm
 }

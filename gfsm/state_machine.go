@@ -16,9 +16,12 @@ type StateMachine struct {
 // NewStateMachine NewStateMachine
 func NewStateMachine(ss Stater, allStates []Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
+
+	for _, s := range allStates {
+		s.SetOwnMachine(sm)
+	}
+
 	sm.currentState = ss
-	// sm.startState = ss
-	// sm.endState = es
 	sm.allStates = allStates
 	return
 }
