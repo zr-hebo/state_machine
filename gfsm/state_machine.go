@@ -8,21 +8,14 @@ import (
 // StateMachine StateMachine
 type StateMachine struct {
 	currentState Stater
-	// startState   Stater
-	// endState     Stater
-	allStates []Stater
+	allStates    []Stater
 }
 
 // NewStateMachine NewStateMachine
-func NewStateMachine(startState Stater, allStates []Stater) (sm *StateMachine) {
+func NewStateMachine(startState Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
 
-	for _, s := range allStates {
-		s.SetMachine(sm)
-	}
-
 	sm.currentState = startState
-	sm.allStates = allStates
 	return
 }
 
