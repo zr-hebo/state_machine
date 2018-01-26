@@ -14,14 +14,14 @@ type StateMachine struct {
 }
 
 // NewStateMachine NewStateMachine
-func NewStateMachine(ss Stater, allStates []Stater) (sm *StateMachine) {
+func NewStateMachine(startState Stater, allStates []Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
 
 	for _, s := range allStates {
 		s.SetMachine(sm)
 	}
 
-	sm.currentState = ss
+	sm.currentState = startState
 	sm.allStates = allStates
 	return
 }
@@ -48,9 +48,9 @@ func (sm *StateMachine) GetState() Stater {
 }
 
 // SetState SetState
-func (sm *StateMachine) SetState(state Stater) {
+/* func (sm *StateMachine) SetState(state Stater) {
 	sm.currentState = state
-}
+} */
 
 func (sm *StateMachine) String() (str string) {
 	str = fmt.Sprintf("current state is %s", sm.currentState)
