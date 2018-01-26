@@ -2,7 +2,7 @@ package gfsm
 
 // Stater Stater
 type Stater interface {
-	Walk(input interface{}) (Stater, error)
+	Walk(input interface{}) (Stater, interface{}, error)
 	String() string
 	IsEnd() bool
 	GetVal() interface{}
@@ -16,7 +16,8 @@ type SimpleState struct {
 }
 
 // Walk Walk
-func (s *SimpleState) Walk(val interface{}) (nextStat *SimpleState, err error) {
+func (s *SimpleState) Walk(val interface{}) (
+	nextState *SimpleState, option interface{}, err error) {
 	return
 }
 
