@@ -8,7 +8,6 @@ import (
 // StateMachine StateMachine
 type StateMachine struct {
 	currentState Stater
-	allStates    []Stater
 }
 
 // NewStateMachine NewStateMachine
