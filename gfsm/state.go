@@ -5,7 +5,7 @@ type Stater interface {
 	Walk(input interface{}) (Stater, error)
 	String() string
 	IsEnd() bool
-	SetOwnMachine(*StateMachine)
+	SetMachine(*StateMachine)
 }
 
 // SimpleState State
@@ -30,7 +30,7 @@ func (s *SimpleState) GetState() (str string) {
 	return
 }
 
-// SetOwnMachine SetOwnMachine
-func (s *SimpleState) SetOwnMachine(sm *StateMachine) {
+// SetMachine SetMachine
+func (s *SimpleState) SetMachine(sm *StateMachine) {
 	s.sm = sm
 }

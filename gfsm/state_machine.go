@@ -18,7 +18,7 @@ func NewStateMachine(ss Stater, allStates []Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
 
 	for _, s := range allStates {
-		s.SetOwnMachine(sm)
+		s.SetMachine(sm)
 	}
 
 	sm.currentState = ss
