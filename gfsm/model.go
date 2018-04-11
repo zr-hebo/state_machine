@@ -84,6 +84,7 @@ func (pl *PipeLine) Execute() (err error) {
 		return
 	}
 
+	pl.task.UpdateStatus(StatusRunning)
 	for idx, step := range pl.steps {
 		if idx < beginStep {
 			continue
