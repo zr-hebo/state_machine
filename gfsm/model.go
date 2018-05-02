@@ -2,6 +2,7 @@ package gfsm
 
 import (
 	"fmt"
+	"runtime/debug"
 	"strings"
 )
 
@@ -90,19 +91,27 @@ func (pl *PipeLine) Execute() (err error) {
 			continue
 		}
 
-		err = step.execFunc()
-		if err != nil {
+		if err = execStep(step); err != nil {
 			pl.task.UpdateTaskInfo(idx, StatusFailed)
-			pl.logger.Log(idx, step.name, StatusFailed, err.Error())
+			pl.logStep(idx, step.name, StatusFailed, err.Error())
 			return
 		}
 
 		pl.task.UpdateTaskInfo(idx+1, StatusRunning)
-		pl.logger.Log(idx, step.name, StatusOK, InfoOK)
+		pl.logStep(idx, step.name, StatusOK, InfoOK)
 	}
 
 	pl.task.UpdateStatus(StatusOK)
 	return
+}
+
+func (pl PipeLine) logStep(
+	stepOrder int, stepName string, status int, info string) {
+	if pl.logger == nil {
+		return
+	}
+
+	_ = pl.logger.Log(stepOrder, stepName, status, info)
 }
 
 func (pl PipeLine) String() (str string) {
@@ -111,4 +120,16 @@ func (pl PipeLine) String() (str string) {
 		steps = append(steps, fmt.Sprintf("Step%d: %s", idx, step.Name()))
 	}
 	return strings.Join(steps, "; ")
+}
+
+func execStep(step *Step) (err error) {
+	defer func() {
+		if reason := recover(); reason != nil {
+			trackBack := string(debug.Stack())
+			err = fmt.Errorf("panic in step of pipe line, %v", trackBack)
+		}
+	}()
+
+	err = step.execFunc()
+	return
 }
