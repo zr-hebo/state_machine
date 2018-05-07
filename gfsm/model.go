@@ -1,6 +1,8 @@
 package gfsm
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"runtime/debug"
 	"strings"
@@ -44,9 +46,11 @@ func (s *Step) Name() string {
 
 // PipeLine get step name
 type PipeLine struct {
-	task   taskTracker
-	logger stepLogger
-	steps  []*Step
+	task        taskTracker
+	initStep    *Step
+	finallyStep *Step
+	logger      stepLogger
+	steps       []*Step
 }
 
 // NewStep create step in task
@@ -67,6 +71,16 @@ func NewPipeLine(task taskTracker, logger stepLogger) (pl *PipeLine) {
 	return
 }
 
+// RegistInitStep regist initial step to pipe line
+func (pl *PipeLine) RegistInitStep(initFunc func() error) {
+	pl.initStep = NewStep("initial execute context", initFunc)
+}
+
+// RegistFinallyStep regist finally step to pipe line
+func (pl *PipeLine) RegistFinallyStep(finallyFunc func() error) {
+	pl.finallyStep = NewStep("execute finally step", finallyFunc)
+}
+
 // RegistStep regist step name and exec to pipe line
 func (pl *PipeLine) RegistStep(stepName string, execFunc func() error) {
 	step := NewStep(stepName, execFunc)
@@ -79,26 +93,46 @@ func (pl *PipeLine) AddStep(step *Step) {
 }
 
 // Execute execute each step in pipe line
-func (pl *PipeLine) Execute() (err error) {
+func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 	beginStep, err := pl.task.GetStep()
 	if err != nil {
 		return
 	}
 
+	steps := make([]*Step, 0, len(pl.steps)+1)
+	steps = append(steps, pl.initStep)
+	steps = append(steps, pl.steps...)
+
+	defer func() {
+		if pl.finallyStep == nil {
+			return
+		}
+
+		finallyErr := execStep(pl.finallyStep)
+		pl.logStep(-1, pl.finallyStep.name, finallyErr)
+	}()
+
 	pl.task.UpdateStatus(StatusRunning)
-	for idx, step := range pl.steps {
-		if idx < beginStep {
+	for idx, step := range steps {
+		select {
+		case <-ctx.Done():
+			err = errors.New("context cancel pipe line execute")
+			return
+		default:
+		}
+
+		if (idx != 0 && idx < beginStep) || step == nil {
 			continue
 		}
 
 		if err = execStep(step); err != nil {
 			pl.task.UpdateTaskInfo(idx, StatusFailed)
-			pl.logStep(idx, step.name, StatusFailed, err.Error())
+			pl.logStep(idx, step.name, err)
 			return
 		}
 
 		pl.task.UpdateTaskInfo(idx+1, StatusRunning)
-		pl.logStep(idx, step.name, StatusOK, InfoOK)
+		pl.logStep(idx, step.name, nil)
 	}
 
 	pl.task.UpdateStatus(StatusOK)
@@ -106,9 +140,16 @@ func (pl *PipeLine) Execute() (err error) {
 }
 
 func (pl PipeLine) logStep(
-	stepOrder int, stepName string, status int, info string) {
+	stepOrder int, stepName string, err error) {
 	if pl.logger == nil {
 		return
+	}
+
+	status := StatusOK
+	info := InfoOK
+	if err != nil {
+		status = StatusFailed
+		info = err.Error()
 	}
 
 	_ = pl.logger.Log(stepOrder, stepName, status, info)
@@ -129,6 +170,10 @@ func execStep(step *Step) (err error) {
 			err = fmt.Errorf("panic in step of pipe line, %v", trackBack)
 		}
 	}()
+
+	if step == nil {
+		return
+	}
 
 	err = step.execFunc()
 	return
