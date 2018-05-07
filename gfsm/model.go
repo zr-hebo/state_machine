@@ -158,7 +158,7 @@ func (pl PipeLine) logStep(
 func (pl PipeLine) String() (str string) {
 	steps := make([]string, 0, len(pl.steps))
 	for idx, step := range pl.steps {
-		steps = append(steps, fmt.Sprintf("Step%d: %s", idx, step.Name()))
+		steps = append(steps, fmt.Sprintf("Step%d: %s", idx+1, step.Name()))
 	}
 	return strings.Join(steps, "; ")
 }
