@@ -2,22 +2,22 @@ package gfsm
 
 // Stater Stater
 type Stater interface {
-	Walk(input interface{}) (Stater, interface{}, error)
+	Walk(input ...interface{}) (Stater, error)
 	String() string
 	IsEnd() bool
 	GetVal() interface{}
-	SetMachine(*StateMachine)
+	// SetMachine(*StateMachine)
 }
 
 // SimpleState State
 type SimpleState struct {
 	name string
-	sm   *StateMachine
+	// sm   *StateMachine
 }
 
 // Walk Walk
-func (s *SimpleState) Walk(val interface{}) (
-	nextState *SimpleState, option interface{}, err error) {
+func (s *SimpleState) Walk(val ...interface{}) (
+	nextState Stater, err error) {
 	return
 }
 
@@ -31,7 +31,12 @@ func (s *SimpleState) GetVal() interface{} {
 	return s.name
 }
 
-// SetMachine SetMachine
-func (s *SimpleState) SetMachine(sm *StateMachine) {
-	s.sm = sm
+// IsEnd is end state
+func (s *SimpleState) IsEnd() bool {
+	return false
 }
+
+// SetMachine SetMachine
+/* func (s *SimpleState) SetMachine(sm *StateMachine) {
+	s.sm = sm
+} */

@@ -13,19 +13,18 @@ type StateMachine struct {
 // NewStateMachine NewStateMachine
 func NewStateMachine(startState Stater) (sm *StateMachine) {
 	sm = new(StateMachine)
-	startState.SetMachine(sm)
 	sm.currentState = startState
 	return
 }
 
 // Walk Walk
-func (sm *StateMachine) Walk(input interface{}) (option interface{}, err error) {
+func (sm *StateMachine) Walk(input ...interface{}) (err error) {
 	if sm.currentState == nil {
 		err = errors.New("state machine's state is NULL, cannot walk to")
 		return
 	}
 
-	nextState, option, err := sm.currentState.Walk(input)
+	nextState, err := sm.currentState.Walk(input...)
 	if err != nil {
 		return
 	}
