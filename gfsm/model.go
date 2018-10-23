@@ -99,10 +99,9 @@ func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 		return
 	}
 
-	// steps := make([]*Step, 0, len(pl.steps)+1)
-	// steps = append(steps, pl.initStep)
-	// steps = append(steps, pl.steps...)
-	steps := pl.steps
+	steps := make([]*Step, 0, len(pl.steps)+1)
+	steps = append(steps, pl.initStep)
+	steps = append(steps, pl.steps...)
 
 	// 结束时，执行清理步骤
 	defer func() {
