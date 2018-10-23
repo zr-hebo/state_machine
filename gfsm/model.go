@@ -99,10 +99,12 @@ func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 		return
 	}
 
-	steps := make([]*Step, 0, len(pl.steps)+1)
-	steps = append(steps, pl.initStep)
-	steps = append(steps, pl.steps...)
+	// steps := make([]*Step, 0, len(pl.steps)+1)
+	// steps = append(steps, pl.initStep)
+	// steps = append(steps, pl.steps...)
+	steps := pl.steps
 
+	// 结束时，执行清理步骤
 	defer func() {
 		if pl.finallyStep == nil {
 			return
@@ -113,6 +115,16 @@ func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 	}()
 
 	pl.task.UpdateStatus(StatusRunning)
+	// 执行初始化步骤
+	if pl.initStep != nil {
+		err = execStep(pl.initStep)
+		pl.logStep(0, pl.initStep.name, err)
+		if err != nil {
+			pl.task.UpdateStatus(StatusFailed)
+			return
+		}
+	}
+
 	for idx, step := range steps {
 		select {
 		case <-ctx.Done():
@@ -121,7 +133,7 @@ func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 		default:
 		}
 
-		if (idx != 0 && idx < beginStep) || step == nil {
+		if (idx < beginStep) || step == nil {
 			continue
 		}
 
