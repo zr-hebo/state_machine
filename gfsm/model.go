@@ -132,7 +132,7 @@ func (pl *PipeLine) Execute(ctx context.Context) (err error) {
 		default:
 		}
 
-		if (idx < beginStep) || step == nil {
+		if idx == 0 || idx < beginStep || step == nil {
 			continue
 		}
 
